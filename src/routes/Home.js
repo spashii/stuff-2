@@ -4,15 +4,39 @@ import { useStoreState, useStoreActions } from 'easy-peasy';
 const Home = () => {
   const todos = useStoreState((state) => state.todo.todos);
   const addTodo = useStoreActions((actions) => actions.todo.add);
+  const toggleTodo = useStoreActions((actions) => actions.todo.toggle);
+  const deleteTodo = useStoreActions((actions) => actions.todo.delete);
 
   const [text, setText] = useState('');
 
   return (
     <div>
-      {todos !== undefined &&
-        todos.map((todo) => (
-          <div key={todo.timeCreated}>{JSON.stringify(todo)}</div>
-        ))}
+      <ul>
+        {todos !== undefined &&
+          todos.map((todo) => (
+            <li
+              key={todo.timeCreated}
+              style={{ display: 'flex', alignItems: 'center' }}
+            >
+              {!!todo.completed ? `✅` : `❌`}
+              <span>{todo.text}</span>
+              <button
+                onClick={() => {
+                  toggleTodo(todo);
+                }}
+              >
+                toggle
+              </button>
+              <button
+                onClick={() => {
+                  deleteTodo(todo);
+                }}
+              >
+                delete
+              </button>
+            </li>
+          ))}
+      </ul>
       <br />
       <div>
         <input

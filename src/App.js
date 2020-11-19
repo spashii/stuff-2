@@ -18,8 +18,6 @@ function App() {
   const isRehydrated = useStoreRehydrated();
   const isLoggingIn = useStoreState((state) => state.user.isLoggingIn);
 
-  console.log('logging in - ', isLoggingIn);
-
   return (
     <Layout>
       {!isRehydrated || isLoggingIn ? (

@@ -8,7 +8,7 @@ function useFirebaseAuth() {
   const setLoggingIn = useStoreActions((actions) => actions.user.setLoggingIn);
 
   useEffect(() => {
-    console.log('firebase auth listener subscribed');
+    console.log('user: auth listener subscribed');
     const unsubscribe = auth().onAuthStateChanged(async (user) => {
       try {
         setLoggingIn(true);
@@ -21,7 +21,7 @@ function useFirebaseAuth() {
     });
     return () => {
       unsubscribe();
-      console.log('firebase auth listener unsubscribed');
+      console.log('user: auth listener unsubscribed');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

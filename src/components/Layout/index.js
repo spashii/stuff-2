@@ -17,7 +17,7 @@ const Layout = ({ children }) => {
             onClick={async () => {
               await signOutUser();
               await store.persist.clear();
-              console.log('user logged out and persistence wiped');
+              console.log('user: logged out and persistence wiped');
             }}
           >
             logout

@@ -14,12 +14,16 @@ function useFirestore() {
         .collection('userBlocks')
         .doc(currentUser.uid)
         .onSnapshot((doc) => {
+          console.log(
+            'todos: pulled from',
+            doc.metadata.hasPendingWrites ? 'local' : 'server'
+          );
           setTodos(doc.data().todos);
         });
-      console.log('firestore todos listener subscribed');
+      console.log('todos: listener subscribed');
       return () => {
         unsubscribe();
-        console.log('firestore todos listener unsubscribed');
+        console.log('todos: listener unsubscribed');
       };
     }
   }, [isActiveUser]);

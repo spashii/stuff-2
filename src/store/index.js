@@ -1,4 +1,5 @@
 import { createStore, persist, action, thunk, computed } from 'easy-peasy';
+
 import { auth, db } from '../fire';
 
 export const store = createStore({
@@ -39,7 +40,7 @@ export const store = createStore({
                 merge: true,
               }
             )
-            .then(() => console.log(`updated @ userBlock(${payload.uid})`))
+            .then(() => console.log(`user: pushed userBlock(${payload.uid})`))
             .catch((error) => console.error(error));
         }
       }),
@@ -56,51 +57,69 @@ export const store = createStore({
       }),
       add: thunk(async (actions, payload, { getStoreState }) => {
         if (getStoreState().user.isActive) {
-          const updatedTodos = () =>
+          const newTodo = {
+            ...payload,
+            timeCreated: new Date().toISOString(),
+          };
+
+          const updatedTodos =
             getStoreState().todo.todos != null
               ? {
-                  todos: [
-                    ...getStoreState().todo.todos,
-                    { ...payload, timeCreated: new Date().toISOString() },
-                  ],
+                  todos: [...getStoreState().todo.todos, newTodo],
                 }
               : {
-                  todos: [
-                    { ...payload, timeCreated: new Date().toISOString() },
-                  ],
+                  todos: [newTodo],
                 };
 
           await db
             .collection('userBlocks')
             .doc(getStoreState().user.current.uid)
-            .update(updatedTodos());
+            .update(updatedTodos)
+            .then(() => console.log('todos: pushed todos(added new)'));
         }
       }),
-      // toggle: thunk(async (actions, payload, { getStoreState }) => {
-      //   if (getStoreState().user.isActive) {
-      //     let batch = db.batch();
-      //     let todos = db.collection('userBlocks').doc(getStoreState().user.current.uid);
+      toggle: thunk(async (actions, payload, { getStoreState }) => {
+        if (getStoreState().user.isActive) {
+          let todos = getStoreState().todo.todos;
 
-      //     batch.update(todos, ))
+          if (todos != null) {
+            let index = todos.indexOf(payload);
+            if (index !== -1) {
+              todos[index].completed = !todos[index].completed;
+              actions.set(todos);
+            }
 
-      //     await db
-      //       .collection('userBlocks')
-      //       .doc(getStoreState().user.current.uid)
-      //       .update({
-      //         todos: firebase.firestore.FieldValue.arrayRemove(payload),
-      //       });
-      //   }
-      // }),
-      // delete: thunk(async (actions, payload, { getStoreState }) => {
-      //   if (getStoreState().user.isActive) {
-      //     await db
-      //       .collection('userBlocks')
-      //       .doc(getStoreState().user.current.uid)
-      //       .update({
-      //         todos: firebase.firestore.FieldValue.arrayRemove(payload),
-      //       });
-      //   }
-      // }),
+            await db
+              .collection('userBlocks')
+              .doc(getStoreState().user.current.uid)
+              .update({
+                todos: todos,
+              })
+              .then(() => console.log('todos: pushed todos(toggled)'));
+          }
+        }
+      }),
+      delete: thunk(async (actions, payload, { getStoreState }) => {
+        if (getStoreState().user.isActive) {
+          let todos = getStoreState().todo.todos;
+
+          if (todos != null) {
+            let index = todos.indexOf(payload);
+            if (index !== -1) {
+              todos.splice(index, 1);
+              actions.set(todos);
+            }
+
+            await db
+              .collection('userBlocks')
+              .doc(getStoreState().user.current.uid)
+              .update({
+                todos: todos,
+              })
+              .then(() => console.log('todos: pushed todos(deleted)'));
+          }
+        }
+      }),
     },
     {
       allow: ['todos'],
