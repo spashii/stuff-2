@@ -1,5 +1,5 @@
 import { Router } from '@reach/router';
-import { useStoreRehydrated } from 'easy-peasy';
+import { useStoreRehydrated, useStoreState } from 'easy-peasy';
 
 import Layout from './components/Layout';
 import Loading from './components/Loading';
@@ -8,16 +8,21 @@ import PrivateRoute from './components/PrivateRoute';
 import Home from './routes/Home';
 import Login from './routes/Login';
 
-import { auth } from './fire';
 import useFirebaseAuth from './util/useFirebaseAuth';
+import useFirestore from './util/useFirestore';
 
 function App() {
-  useFirebaseAuth(auth);
+  useFirebaseAuth();
+  useFirestore();
+
   const isRehydrated = useStoreRehydrated();
+  const isLoggingIn = useStoreState((state) => state.user.isLoggingIn);
+
+  console.log('logging in - ', isLoggingIn);
 
   return (
     <Layout>
-      {!isRehydrated ? (
+      {!isRehydrated || isLoggingIn ? (
         <Loading />
       ) : (
         <Router>

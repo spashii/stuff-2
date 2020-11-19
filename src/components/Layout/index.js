@@ -1,20 +1,12 @@
-// import { makeStyles } from '@material-ui/core';
 import { Link } from '@reach/router';
 import { useStoreState, useStoreActions } from 'easy-peasy';
-
-// const useStyles = makeStyles((theme) => ({
-//   root: {}
-// }));
+import { store } from '../../store';
 
 const Layout = ({ children }) => {
-  // const classes = useStyles();
   const user = useStoreState((state) => state.user);
   const signOutUser = useStoreActions((actions) => actions.user.signOut);
 
-  console.log(user);
-
   return (
-    // <div className={classes.root}>
     <div>
       <nav>
         <Link to="/">Home</Link>
@@ -22,8 +14,10 @@ const Layout = ({ children }) => {
           <Link to="/login">Login</Link>
         ) : (
           <button
-            onClick={() => {
-              signOutUser();
+            onClick={async () => {
+              await signOutUser();
+              await store.persist.clear();
+              console.log('user logged out and persistence wiped');
             }}
           >
             logout
